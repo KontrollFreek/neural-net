@@ -14,15 +14,20 @@ void Network::initialise(std::initializer_list<size_t> nodes_per_layer) {
     for (size_t layers_idx = 0; layers_idx < layers.size(); ++layers_idx) {
 
         auto& layer = layers[layers_idx];
+        // TODO - this feels nasty, please fix
         auto num_nodes = nodes_per_layer.begin() + layers_idx;
 
-        layer.nodes.resize(*num_nodes);
-        for (auto& node : layer.nodes) {
-            node.bias = rand_float();
+        layer.values.resize(*num_nodes);
+        layer.biases.resize(*num_nodes);
+        layer.incoming_weights.resize(*num_nodes);
+        for (size_t node_idx = 0; node_idx < layer.size(); ++node_idx) {
+            auto node = layer.getNode(node_idx);
 
-            if (layers_idx + 1 >= layers.size()) continue;
-            node.outgoingWeights.resize(*(num_nodes + 1));
-            for (auto& weight : node.outgoingWeights) {
+            *node.bias = rand_float();
+
+            if (layers_idx == 0) continue;
+            node.incoming_weights->resize(*(num_nodes - 1));
+            for (auto& weight : *node.incoming_weights) {
                 weight = rand_float();
             }
         }
